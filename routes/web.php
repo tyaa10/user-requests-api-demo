@@ -16,3 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::controller(App\Http\Controllers\RequestController::class)->group(function () {
+    Route::get('/requests', 'index');
+    Route::put('/requests/{id}', 'update');
+    Route::post('/requests', 'store');
+});
