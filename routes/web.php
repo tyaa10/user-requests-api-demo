@@ -17,7 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::controller(App\Http\Controllers\RequestController::class)->group(function () {
+Route::middleware(['cors'])->controller(App\Http\Controllers\RequestController::class)->group(function () {
     Route::get('/requests/{dateDelimiter?}/{date?}/{statusDelimiter?}/{status?}/', 'index')
         ->where('dateDelimiter', 'date')
         ->where('statusDelimiter', 'status');
