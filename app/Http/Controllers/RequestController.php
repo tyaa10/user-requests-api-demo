@@ -6,6 +6,7 @@ use App\Jobs\SendResponseEmailJob;
 use Illuminate\Http\Request;
 use App\Models\Request as UserRequest;
 use App\Http\Resources\RequestResource;
+// use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class RequestController extends Controller
@@ -15,9 +16,25 @@ class RequestController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return RequestResource::collection(\App\Models\Request::paginate(25));
+        $requestSegments = $request->segments();
+        $date = null;
+        $status = null;
+        if (array_key_exists(1, $requestSegments) && $requestSegments[1] === 'date') {
+            $date = $requestSegments[2];
+            if (array_key_exists(3, $requestSegments) && $requestSegments[3] === 'status')
+                $status = $requestSegments[4];
+        } else if (array_key_exists(1, $requestSegments) && $requestSegments[1] === 'status')
+            $status = $requestSegments[2];
+        return RequestResource::collection(
+            UserRequest::when($date, function ($query, $date) {
+                    $query->whereDate('created_at', '=', $date);
+                })->when($status, function ($query, $status) {
+                    $query->where('status', '=', $status);
+                })
+                ->paginate(25)
+        );
     }
 
     /**
@@ -68,9 +85,12 @@ class RequestController extends Controller
             return response()->json(['error' => $ex->errors()], 400);
         }
         try {
-            $request = \App\Models\Request::find($id);
+            $request = UserRequest::find($id);
             if (!$request) {
                 return response()->json(['error' => 'request not found'], 404);
+            }
+            if ($request->status === 'Resolved') {
+                return response()->json(['warning' => 'The request has already been resolved'], 200);
             }
             $request->status = 'Resolved';
             $request->comment = $httpRequest->comment;

@@ -18,7 +18,11 @@ Route::get('/', function () {
 });
 
 Route::controller(App\Http\Controllers\RequestController::class)->group(function () {
-    Route::get('/requests', 'index');
+    Route::get('/requests/{dateDelimiter?}/{date?}/{statusDelimiter?}/{status?}/', 'index')
+        ->where('dateDelimiter', 'date')
+        ->where('statusDelimiter', 'status');
+    Route::get('/requests/{statusDelimiter?}/{status?}/', 'index')
+        ->where('statusDelimiter', 'status');
     Route::put('/requests/{id}', 'update');
     Route::post('/requests', 'store');
 });
