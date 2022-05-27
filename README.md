@@ -3,6 +3,8 @@
 - MySQL 5.7;
 - Laravel 9.
 ## Run
+- **db connection data**: .env.dev
+- composer install
 - php artisan migrate
 - php artisan queue:listen
 - php artisan serve --port=8080
