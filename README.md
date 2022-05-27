@@ -9,3 +9,5 @@
 ## REST API Documentation
 - **generate**: php artisan l5-swagger:generate
 - **watch**: http://127.0.0.1:8080/api/documentation
+## Run tests
+composer test
