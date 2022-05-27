@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendResponseEmailJob;
 use Illuminate\Http\Request;
 use App\Models\Request as UserRequest;
 use App\Http\Resources\RequestResource;
@@ -74,6 +75,12 @@ class RequestController extends Controller
             $request->status = 'Resolved';
             $request->comment = $httpRequest->comment;
             if ($request->save()) {
+                SendResponseEmailJob::dispatch([
+                    'name' => $request->name,
+                    'emailTo' => $request->email,
+                    'request' => $request->message,
+                    'response' => $request->comment
+                ]);
                 return response()->json(['success' => 'request resolved'], 200);
             } else {
                 return response()->json(['error' => 'database error'], 502);
