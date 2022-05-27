@@ -1,0 +1,309 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "User Requests Demo API",
+        "version": "0.1"
+    },
+    "paths": {
+        "/requests": {
+            "get": {
+                "tags": [
+                    "Requests"
+                ],
+                "summary": "Get list of requests",
+                "description": "Returns list of user requests by date and status",
+                "operationId": "getRequestsList",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (25 items per page)",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Requests"
+                ],
+                "summary": "New request",
+                "description": "Post a new user request",
+                "operationId": "postRequest",
+                "requestBody": {
+                    "description": "Pass user request data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "message"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "format": "name",
+                                        "example": "John"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@test.com"
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Lorem ipsum dolor sit amet"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Request created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "request created"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    },
+                    "502": {
+                        "description": "Database error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "database error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/requests/date/{date}/status/{status}/": {
+            "get": {
+                "tags": [
+                    "Requests"
+                ],
+                "summary": "Find requests by date and status",
+                "description": "Returns list of user requests by date and status",
+                "operationId": "getRequestsListByDateAndStatus",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "Date the user request was created",
+                        "required": true
+                    },
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "description": "User request status: Active or Resolved",
+                        "required": true
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (25 items per page)",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/requests/date/{date}/": {
+            "get": {
+                "tags": [
+                    "Requests"
+                ],
+                "summary": "Find requests by date",
+                "description": "Returns list of user requests by date",
+                "operationId": "getRequestsListByDate",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "Date the user request was created",
+                        "required": true
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (25 items per page)",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/requests/status/{status}/": {
+            "get": {
+                "tags": [
+                    "Requests"
+                ],
+                "summary": "Find requests by status",
+                "description": "Returns list of user requests by status",
+                "operationId": "getRequestsListByStatus",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "path",
+                        "description": "User request status: Active or Resolved",
+                        "required": true
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number (25 items per page)",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "successful operation"
+                    }
+                }
+            }
+        },
+        "/requests/{id}": {
+            "put": {
+                "tags": [
+                    "Requests"
+                ],
+                "summary": "Resolve request",
+                "description": "Resolve specified user request",
+                "operationId": "putRequest",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User request ID",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "description": "Comment on the user's request and resolve it",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "comment"
+                                ],
+                                "properties": {
+                                    "comment": {
+                                        "type": "string",
+                                        "example": "Lorem ipsum dolor sit amet"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Request resolved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "string",
+                                            "example": "request resolved"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation errors"
+                    },
+                    "299": {
+                        "description": "Request already resolved warning",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "warning": {
+                                            "type": "string",
+                                            "example": "The request has already been resolved"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "request not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "Database error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "database error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -12,7 +12,104 @@ use Illuminate\Validation\ValidationException;
 class RequestController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     *
+     * @OA\Get (
+     *      path="/requests",
+     *      operationId="getRequestsList",
+     *      tags={"Requests"},
+     *      summary="Get list of requests",
+     *      description="Returns list of user requests by date and status",
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number (25 items per page)",
+     *         required=false,
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="successful operation"
+     *       )
+     *     )
+     *
+     * @OA\Get (
+     *      path="/requests/date/{date}/status/{status}/",
+     *      operationId="getRequestsListByDateAndStatus",
+     *      tags={"Requests"},
+     *      summary="Find requests by date and status",
+     *      description="Returns list of user requests by date and status",
+     *      @OA\Parameter(
+     *         name="date",
+     *         in="path",
+     *         description="Date the user request was created",
+     *         required=true,
+     *      ),
+     *     @OA\Parameter(
+     *         name="status",
+     *         in="path",
+     *         description="User request status: Active or Resolved",
+     *         required=true,
+     *      ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number (25 items per page)",
+     *         required=false,
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successful operation"
+     *       )
+     *     )
+     *
+     * @OA\Get (
+     *      path="/requests/date/{date}/",
+     *      operationId="getRequestsListByDate",
+     *      tags={"Requests"},
+     *      summary="Find requests by date",
+     *      description="Returns list of user requests by date",
+     *      @OA\Parameter(
+     *         name="date",
+     *         in="path",
+     *         description="Date the user request was created",
+     *         required=true,
+     *      ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number (25 items per page)",
+     *         required=false,
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successful operation"
+     *       )
+     *     )
+     *
+     * @OA\Get (
+     *      path="/requests/status/{status}/",
+     *      operationId="getRequestsListByStatus",
+     *      tags={"Requests"},
+     *      summary="Find requests by status",
+     *      description="Returns list of user requests by status",
+     *      @OA\Parameter(
+     *         name="status",
+     *         in="path",
+     *         description="User request status: Active or Resolved",
+     *         required=true,
+     *      ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Page number (25 items per page)",
+     *         required=false,
+     *      ),
+     *      @OA\Response(
+     *          response=201,
+     *          description="successful operation"
+     *       )
+     *     )
+     *
+     * Returns list of requests
      *
      * @return \Illuminate\Http\Response
      */
@@ -38,7 +135,44 @@ class RequestController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     *
+     * @OA\Post(
+     *  path="/requests",
+     *  summary="New request",
+     *  description="Post a new user request",
+     *  operationId="postRequest",
+     *  tags={"Requests"},
+     *  @OA\RequestBody(
+     *    required=true,
+     *    description="Pass user request data",
+     *    @OA\JsonContent(
+     *       required={"name","email", "message"},
+     *       @OA\Property(property="name", type="string", format="name", example="John"),
+     *       @OA\Property(property="email", type="string", format="email", example="john@test.com"),
+     *       @OA\Property(property="message", type="string", example="Lorem ipsum dolor sit amet"),
+     *    ),
+     *  ),
+     *  @OA\Response(
+     *    response=201,
+     *    description="Request created",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="success", type="string", example="request created")
+     *    )
+     *  ),
+     *  @OA\Response(
+     *    response=400,
+     *    description="Validation errors"
+     *  ),
+     *  @OA\Response(
+     *    response=502,
+     *    description="Database error",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="error", type="string", example="database error")
+     *    )
+     *  )
+     * )
+     *
+     * Store a newly created user request in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -66,6 +200,61 @@ class RequestController extends Controller
     }
 
     /**
+     *
+     * @OA\Put(
+     *  path="/requests/{id}",
+     *  summary="Resolve request",
+     *  description="Resolve specified user request",
+     *  operationId="putRequest",
+     *  tags={"Requests"},
+     *  @OA\Parameter(
+     *    name="id",
+     *    in="path",
+     *    description="User request ID",
+     *    required=true,
+     *  ),
+     *  @OA\RequestBody(
+     *    required=true,
+     *    description="Comment on the user's request and resolve it",
+     *    @OA\JsonContent(
+     *       required={"comment"},
+     *       @OA\Property(property="comment", type="string", example="Lorem ipsum dolor sit amet"),
+     *    ),
+     *  ),
+     *  @OA\Response(
+     *    response=200,
+     *    description="Request resolved",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="success", type="string", example="request resolved")
+     *    )
+     *  ),
+     *  @OA\Response(
+     *    response=400,
+     *    description="Validation errors"
+     *  ),
+     *  @OA\Response(
+     *    response=299,
+     *    description="Request already resolved warning",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="warning", type="string", example="The request has already been resolved")
+     *    )
+     *  ),
+     *  @OA\Response(
+     *    response=404,
+     *    description="Not found error",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="error", type="string", example="request not found")
+     *    )
+     *  ),
+     *  @OA\Response(
+     *    response=502,
+     *    description="Database error",
+     *    @OA\JsonContent(
+     *       @OA\Property(property="error", type="string", example="database error")
+     *    )
+     *  )
+     * )
+     *
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -74,9 +263,6 @@ class RequestController extends Controller
      */
     public function update(Request $httpRequest, $id)
     {
-        if ($id <= 0) {
-            return response()->json(['error' => "Invalid ID"], 400);
-        }
         try {
             $httpRequest->validate([
                 'comment' => 'required|max:5000'
@@ -90,7 +276,7 @@ class RequestController extends Controller
                 return response()->json(['error' => 'request not found'], 404);
             }
             if ($request->status === 'Resolved') {
-                return response()->json(['warning' => 'The request has already been resolved'], 200);
+                return response()->json(['warning' => 'The request has already been resolved'], 299);
             }
             $request->status = 'Resolved';
             $request->comment = $httpRequest->comment;

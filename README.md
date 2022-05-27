@@ -6,3 +6,6 @@
 - php artisan migrate
 - php artisan queue:listen
 - php artisan serve --port=8080
+## REST API Documentation
+- **generate**: php artisan l5-swagger:generate
+- **watch**: http://127.0.0.1:8080/api/documentation
