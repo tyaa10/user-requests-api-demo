@@ -46,7 +46,7 @@ class RequestTest extends TestCase
         $this->postCorrectRequest();
         $this->json(
             'GET',
-            '/requests/date/2022-05-27/status/Active', [], ['Accept' => 'application/json'])
+            '/requests/date/' . date('Y-m-d') . '/status/Active', [], ['Accept' => 'application/json'])
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [

@@ -4,10 +4,10 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RequestResource extends JsonResource
+class UserRequestResource extends JsonResource
 {
     /**
-     * Transform the resource into an array.
+     * Transform the user request resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return array

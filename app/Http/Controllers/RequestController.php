@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendResponseEmailJob;
+use App\Repositories\Interfaces\IRequestsDao;
 use Illuminate\Http\Request;
 use App\Models\Request as UserRequest;
 use App\Http\Resources\RequestResource;
@@ -11,6 +12,24 @@ use Illuminate\Validation\ValidationException;
 
 class RequestController extends Controller
 {
+    /**
+     * The user requests repository implementation
+     *
+     * @var IRequestsDao
+     */
+    protected $requestsDao;
+
+    /**
+     * Create a new user requests controller instance with DI
+     *
+     * @param  IRequestsDao $requestsDao
+     * @return void
+     */
+    public function __construct(IRequestsDao $requestsDao)
+    {
+        $this->requestsDao = $requestsDao;
+    }
+
     /**
      *
      * @OA\Get (
@@ -124,14 +143,7 @@ class RequestController extends Controller
                 $status = $requestSegments[4];
         } else if (array_key_exists(1, $requestSegments) && $requestSegments[1] === 'status')
             $status = $requestSegments[2];
-        return RequestResource::collection(
-            UserRequest::when($date, function ($query, $date) {
-                    $query->whereDate('created_at', '=', $date);
-                })->when($status, function ($query, $status) {
-                    $query->where('status', '=', $status);
-                })
-                ->paginate(25)
-        );
+        return $this->requestsDao->findRequestsByDateAndStatus($date, $status, 2);
     }
 
     /**
@@ -192,7 +204,7 @@ class RequestController extends Controller
         $request->name = $httpRequest->name;
         $request->email = $httpRequest->email;
         $request->message = $httpRequest->message;
-        if ($request->save()) {
+        if ($this->requestsDao->storeRequest($request)) {
             return response()->json(['success' => 'request created'], 201);
         } else {
             return response()->json(['error' => 'database error'], 502);
@@ -271,16 +283,7 @@ class RequestController extends Controller
             return response()->json(['error' => $ex->errors()], 400);
         }
         try {
-            $request = UserRequest::find($id);
-            if (!$request) {
-                return response()->json(['error' => 'request not found'], 404);
-            }
-            if ($request->status === 'Resolved') {
-                return response()->json(['warning' => 'The request has already been resolved'], 299);
-            }
-            $request->status = 'Resolved';
-            $request->comment = $httpRequest->comment;
-            if ($request->save()) {
+            if ($request = $this->requestsDao->resolveRequest($id, $httpRequest->comment)) {
                 SendResponseEmailJob::dispatch([
                     'name' => $request->name,
                     'emailTo' => $request->email,
@@ -291,8 +294,10 @@ class RequestController extends Controller
             } else {
                 return response()->json(['error' => 'database error'], 502);
             }
-        } catch(\Exception $exception) {
-            throw new HttpException(400, "Invalid data - {$exception->getMessage}");
+        } catch(\InvalidArgumentException $exception) {
+            return response()->json(['error' => $exception->getMessage()], 404);
+        } catch(\DomainException $exception) {
+            return response()->json(['warning' => $exception->getMessage()], 299);
         }
     }
 }
