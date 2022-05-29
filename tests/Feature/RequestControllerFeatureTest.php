@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class RequestTest extends TestCase
+class RequestControllerFeatureTest extends TestCase
 {
     /**
      * Post a new request feature test
